@@ -1,0 +1,42 @@
+Authentication can be done in two ways: 
+1) Using JWT(client side using cookie)
+2) Using Passport.JS (Server-side session storage)
+
+---------------------------------------------------------------------
+-----------------------------JWT-------------------------------------
+---------------------------------------------------------------------
+
+---------------------------------------------------------------------
+-----------------------------Passport--------------------------------
+---------------------------------------------------------------------
+
+-> Passport.JS is an authentication middleware(It is more like a template which uses a strategy)
+-> It uses a strategy to check authentication(if the user is valid or not)
+-> passport-local is an strategy in which we check the authentication locally(in our own server) and decide if the user is authenticated or not
+-> express-session persists user across different pages in the same browser
+
+Why use session: https://medium.com/swlh/session-management-in-nodejs-using-redis-as-session-store-64186112aa9
+
+Authentication options in Passport: passport-local strategy, passport-jwt strategy, OAuth, etc.
+
+HTTP is stateless, so without session or token, we have to pass our login credentials with every request
+
+Session 
+1. Sessions are stored in server side
+2. Storing sessions in a DB is scalable, by default if we don;t provide a session-store(db) they will be stored in MemoryStore, which will get erased when we stop the server
+3. We need a session store like connect-mongo, connect-pg-simple, connect-redis (more on express-session npm page) etc.
+4. app.use(session{options}) , session is a middleware
+5. Whenever a new user enters a website, a session is created with a sid(session id) in the database, and the "Set-Cookie" header of response object has the session id in it, and thus, the browser will set that cookie in a key connect.sid=<sessionId>
+6. After that, whenever we send any request from that browser to that domain, the "Cookie" header is always set as mentioned previously 
+7. We can view that session in request object by writing req.session
+8. A cookie is a set of key-value pairs, each domain has it's own saved cookies in the browser, so as the user doesn't have to enter entire details. Cookie expires after the expiry date and time
+9. const strategy = new LocalStrategy(verifyCallback); passport.use(strategy); 
+10. In the verifyCallback of strategy we use done(x, y) -> x is error if any, and y is data of the user passed(if authentication is successful)
+11. serializeUser: If the user is authenticated, serializeUser gets the id of user from the DB, and insert that(userId) into the req.session.passport.user property
+12. deserializeuser: Whenever we want to get the user from the session and attach all user details to req.user
+13. If the user is not authenticated, then req.user will be undefined
+14. req.user, req.session, req.isAuthenticated, req.isUnauthenticated are some of the useful methods available after using passport and express-session middlewares
+
+
+express-session npm docs are very easy to understand: https://www.npmjs.com/package/express-session
+Details of all the session stores are also given in this npm link
