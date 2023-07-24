@@ -3,6 +3,34 @@ Authentication can be done in two ways:
 2) Using Passport.JS (Server-side session storage)
 
 ---------------------------------------------------------------------
+-----------------------------HASHING---------------------------------
+---------------------------------------------------------------------
+
+-> We should not directly save password as it is. instead it should be stored in hashed form
+
+Procedure
+Storing
+-> const passwordHash = hashFunction(plainTextPassword, salt);
+-> Store passwordHash in DB
+
+Checking 
+-> const isUserValidated = hashCompare(plainTextPassword, databaseHash);
+
+----------------- bcrypt module -----------------
+-> generally "bcrypt" module is used in hashing
+
+a) Storing
+const saltRounds = 10;
+const salt = await bcrypt.genSalt(saltRounds);
+const passwordHash = await bcrypt.hash(plainTextPassword, salt);
+DB.save({})
+
+b) Checking
+DB.retrieve()
+const isUserValidated = await bcrypt.compare(plainTextPassword, passwordHash)
+
+
+---------------------------------------------------------------------
 -----------------------------JWT-------------------------------------
 ---------------------------------------------------------------------
 
@@ -38,5 +66,6 @@ Session
 14. req.user, req.session, req.isAuthenticated, req.isUnauthenticated are some of the useful methods available after using passport and express-session middlewares
 
 
+Resources
 express-session npm docs are very easy to understand: https://www.npmjs.com/package/express-session
 Details of all the session stores are also given in this npm link
