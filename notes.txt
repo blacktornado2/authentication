@@ -33,6 +33,28 @@ const isUserValidated = await bcrypt.compare(plainTextPassword, passwordHash)
 ---------------------------------------------------------------------
 -----------------------------JWT-------------------------------------
 ---------------------------------------------------------------------
+JWT -> JSON Web Token
+JWT = Header(Algorithm) + Payload(uid) + Signature(secret key + uid + algo)
+There is a secret key that is only present with backend
+When user log in, backend sends a JWT token to frontend that is stored in the browser
+Again when the frontend requests anything from backend, it sends that token everytime to backend
+Backend checks whether that token is valid or not, and do the work accordingly
+Backend that the token, makes a new signature with the help of payload+header (both from frontend) and secret key(from backend) and checks whether it is same as the signature from frontend or not
+
+1. Make a new jwt 
+-> jwt.sign(payload, secretKey, options(optional))
+payload can be string or object which contains a unique id, secretKey is stored in backend, 
+Ex: const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: 1000 * 60 * 60 }) (Synchronous)
+The above JWT is made from unique id _id which is present in mongoDB, and will expire in 1 hour after genration
+
+2. Verify token
+-> jwt.verify(token, secretKey, options(optional))
+Ex: const isUserValid = jwt.verify(token, secretKey) (Synchronous)
+if jwt is verified, it will return signtaure, if it is invalid, it will throw error
+
+-Pehli bat to ye ki payload(_id) ki inforamtion rehti h jwt.verify() ki return value me
+- Dusri bat /:id par hit maro hi nhi get("/") ki request mardo bs, aur user jwt se pta lag hi jaega, to wo kisi aur ki id bhi pretend nhi kar paega kyuki /:id jaisa koi route hi nhi h
+
 
 ---------------------------------------------------------------------
 -----------------------------Passport--------------------------------
@@ -51,7 +73,7 @@ HTTP is stateless, so without session or token, we have to pass our login creden
 
 Session 
 1. Sessions are stored in server side
-2. Storing sessions in a DB is scalable, by default if we don;t provide a session-store(db) they will be stored in MemoryStore, which will get erased when we stop the server
+2. Storing sessions in a DB is scalable, by default if we don't provide a session-store(db) they will be stored in MemoryStore, which will get erased when we stop the server
 3. We need a session store like connect-mongo, connect-pg-simple, connect-redis (more on express-session npm page) etc.
 4. app.use(session{options}) , session is a middleware
 5. Whenever a new user enters a website, a session is created with a sid(session id) in the database, and the "Set-Cookie" header of response object has the session id in it, and thus, the browser will set that cookie in a key connect.sid=<sessionId>
@@ -65,6 +87,28 @@ Session
 13. If the user is not authenticated, then req.user will be undefined
 14. req.user, req.session, req.isAuthenticated, req.isUnauthenticated are some of the useful methods available after using passport and express-session middlewares
 
+
+
+---------------------------------------------------------------------
+-----------------------------Cookies---------------------------------
+---------------------------------------------------------------------
+1. Used to store data in browser 
+2. Setting Cookie: 
+res.setHeader("Set-Cookie","isLoggedIn=true")
+
+3. Alternative method (Using cookie-parser module and using app.use(cookieParser()) as a middleware ):
+res.cookie("isLoggedIn", true);
+res.cookie("Authorization", "Bearer 1234");
+return res.json({message: "Success"});
+
+4. We can set a number of properties of that cookie:
+res.cookie('rememberme', '1', { expires: new Date(Date.now() + 900000), secure: true, httpOnly: true })
+secure: true means that the cookie won't be accessible on http protocol, only https
+httpOnly: true means that the cookie can't be accessed by frontend
+
+5. Generally cookies can be accessed by frontend using document.cookie
+
+6. Incoming cookie can be accessed on backend using req.cookies(cookieParser package should be installed and used as a middleware)
 
 Resources
 express-session npm docs are very easy to understand: https://www.npmjs.com/package/express-session

@@ -8,7 +8,10 @@ class UserController {
         const { name, email, password, password_confirmation, tc } = req.body;
         const user = await UserModel.findOne({ email: email });
         if (user) {
-            res.send({ status: "failed", message: "Email already exists" });
+            return res.send({
+                status: "failed",
+                message: "Email already exists"
+            });
         } else {
             if (name && email && password && password_confirmation && tc) {
                 if (password === password_confirmation) {
@@ -77,9 +80,6 @@ class UserController {
                     );
                     if (isMatch) {
                         // Generate JWT
-                        const user = await UserModel.findOne({
-                            email: email
-                        });
                         const token = jwt.sign(
                             { userID: user._id }, // _id is a mongo cooncept
                             process.env.JWT_SECRET_KEY,
